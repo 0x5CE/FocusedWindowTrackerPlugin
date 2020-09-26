@@ -17,6 +17,9 @@
 #include <memory.h>
 #include <tchar.h>
 
+#include <psapi.h>
+#include <shellapi.h>
+#include <vector>
 
 // reference additional headers your program requires here
 #include <ShellScalingApi.h>

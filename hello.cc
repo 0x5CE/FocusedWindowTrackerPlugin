@@ -1,7 +1,6 @@
 #include <napi.h>
 #include "build\stdafx.h"
-#include <psapi.h>
-
+#include "build\imageUtilities.h"
 
 // input: none
 // output:
@@ -18,43 +17,42 @@ HRESULT _getFocusedWindowInfo(HWND *focusedWindow, RECT *rc, DWORD *focusedPID)
 }
 
 // input:
-//	BitmapHandle
+//	pszExeFileName: process executable file path
 // output:
-//	width, height of the snapshot
-//	byte map of the snapshot
-std::vector<unsigned char> _bitmapToBytes(HBITMAP BitmapHandle, int &width, int &height)
+//	imageBuffer: contains the icon in RGB32
+//	width, height, size of the icon
+//
+HRESULT _getProcessIcon(LPCSTR pszExeFileName, BYTE **imageBuffer, DWORD *width, DWORD *height, DWORD *imageSize)
 {
-	BITMAP Bmp = { 0 };
-	BITMAPINFO Info = { 0 };
-	std::vector<unsigned char> Pixels = std::vector<unsigned char>();
+	HICON icon = ExtractIconA(GetModuleHandle(NULL), pszExeFileName, 0);
+	auto iconInfo = imageUtilities::_MyGetIconInfo(icon);
+	auto hbmp = imageUtilities::_HICONtoHBITMAP(icon, iconInfo.nWidth, iconInfo.nWidth);
 
-	HDC DC = CreateCompatibleDC(NULL);
-	std::memset(&Info, 0, sizeof(BITMAPINFO)); 
-	HBITMAP OldBitmap = (HBITMAP)SelectObject(DC, BitmapHandle);
-	GetObject(BitmapHandle, sizeof(Bmp), &Bmp);
+	//create
+	HDC hdcScreen = GetDC(NULL);
+	HDC hdc = CreateCompatibleDC(hdcScreen);
+	SelectObject(hdc, hbmp);
 
-	Info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	Info.bmiHeader.biWidth = width = Bmp.bmWidth;
-	Info.bmiHeader.biHeight = height = Bmp.bmHeight;
-	Info.bmiHeader.biHeight = -Info.bmiHeader.biHeight;
-	Info.bmiHeader.biPlanes = 1;
-	Info.bmiHeader.biBitCount = Bmp.bmBitsPixel;
-	Info.bmiHeader.biCompression = BI_RGB;
-	Info.bmiHeader.biSizeImage = ((width * Bmp.bmBitsPixel + 31) / 32) * 4 * height;
+	BYTE *imgBuffer = new BYTE[iconInfo.nWidth * iconInfo.nHeight * 4];
 
-	Pixels.resize(Info.bmiHeader.biSizeImage);
-	GetDIBits(DC, BitmapHandle, 0, height, &Pixels[0], &Info, DIB_RGB_COLORS);
-	SelectObject(DC, OldBitmap);
+	auto x = imageUtilities::_bitmapToBytes(hbmp, (int&)*width, (int&)*height);
+	memcpy(imgBuffer, &x[0], (*width)*(*height) * 4);
 
-	height = std::abs(height);
-	DeleteDC(DC);
-	return Pixels;
+	*imageBuffer = imgBuffer;
+	*imageSize = x.size();
+
+	//release
+	DeleteDC(hdc);
+	DeleteObject(hbmp);
+	ReleaseDC(NULL, hdcScreen);
+	return S_OK;
 }
+
 
 // input:
 //	focusedWindow, rc
 // output:
-//	imageBuffer: contains the snapshot of the window
+//	imageBuffer: contains the snapshot of the window in RGB32
 //	width, height, size of the snapshot
 //
 HRESULT _getWindowSnapshot(HWND focusedWindow, RECT rc, BYTE **imageBuffer, DWORD *width, DWORD *height, DWORD *imageSize)
@@ -72,8 +70,7 @@ HRESULT _getWindowSnapshot(HWND focusedWindow, RECT rc, BYTE **imageBuffer, DWOR
 	//Print to memory hdc
 	PrintWindow(focusedWindow, hdc, PW_RENDERFULLCONTENT);
 
-	//auto bitmapSize = bitmap.bmWidth * bitmap.bmHeight * bitmap.bmBitsPixel / 8;
-	auto x = _bitmapToBytes(hbmp, (int&)*width, (int&)*height);
+	auto x = imageUtilities::_bitmapToBytes(hbmp, (int&)*width, (int&)*height);
 	memcpy(imgBuffer, &x[0], (*width)*(*height)*4);
 
 	*imageBuffer = imgBuffer;
@@ -132,14 +129,22 @@ Napi::Object getFocusedImageAndDetail(const Napi::CallbackInfo& info) {
 	_getProcessFilename(focusedPID, filename);
 
 	// get snapshot of the window
-	BYTE *imageBuffer = nullptr; DWORD imageSize = 0, width = 0, height = 0;
 
-	_getWindowSnapshot(focusedWindow, rc, &imageBuffer, &width, &height, &imageSize);
+	BYTE *imageBuffer = nullptr; DWORD imageSize = 0, snapshotWidth = 0, snapshotHeight = 0;
+	_getWindowSnapshot(focusedWindow, rc, &imageBuffer, &snapshotWidth, &snapshotHeight, &imageSize);
 
+	// get icon of the process
+
+	BYTE *iconBuffer = nullptr; DWORD iconSize = 0, iconWidth = 0, iconHeight = 0;
+	_getProcessIcon(filename, &iconBuffer, &iconWidth, &iconHeight, &iconSize);
+	
 	obj.Set(Napi::String::New(env, "filename"), filename);
 	obj.Set(Napi::String::New(env, "snapshot"), Napi::Buffer<uint8_t>::New(env, imageBuffer, imageSize));
-	obj.Set(Napi::String::New(env, "snapshotWidth"), width);
-	obj.Set(Napi::String::New(env, "snapshotHeight"), height);
+	obj.Set(Napi::String::New(env, "snapshotWidth"), snapshotWidth);
+	obj.Set(Napi::String::New(env, "snapshotHeight"), snapshotHeight);
+	obj.Set(Napi::String::New(env, "icon"), Napi::Buffer<uint8_t>::New(env, iconBuffer, iconSize));
+	obj.Set(Napi::String::New(env, "iconWidth"), iconWidth);
+	obj.Set(Napi::String::New(env, "iconHeight"), iconHeight);
 
 	return obj;
 }
@@ -156,6 +161,7 @@ Napi::Object getFocusedDetail(const Napi::CallbackInfo& info) {
 
 // input: none
 // output: true (microphone active) / false (not active)
+//
 Napi::Boolean isMicrophoneActive(const Napi::CallbackInfo& info) {
 	Napi::Env env = info.Env();
 	return Napi::Boolean::New(env, false);
@@ -163,6 +169,7 @@ Napi::Boolean isMicrophoneActive(const Napi::CallbackInfo& info) {
 
 // input: none
 // output: true (webcam active) / false (not active)
+//
 Napi::Boolean isWebcamActive(const Napi::CallbackInfo& info) {
 	Napi::Env env = info.Env();
 	return Napi::Boolean::New(env, false);
