@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{C8AE8F0C-A198-07E7-09D5-23814077BB88}</ProjectGuid>
+    <ProjectGuid>{8C9BB279-445F-F4DF-47FB-D0C77B3841BA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>hello</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
@@ -47,7 +47,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\include\node;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\src;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\config;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\openssl\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\uv\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\zlib;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\v8\include;C:\Users\Muazzam\abi-stable-node-addon-examples\1_hello_world\node-addon-api\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\include\node;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\src;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\config;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\openssl\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\uv\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\zlib;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\v8\include;C:\Users\Muazzam\abi-stable-node-addon-examples\1_hello_world\node-addon-api\FocusedWindowTrackerPlugin\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -77,13 +77,13 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\include\node;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\src;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\config;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\openssl\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\uv\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\zlib;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\v8\include;C:\Users\Muazzam\abi-stable-node-addon-examples\1_hello_world\node-addon-api\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\include\node;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\src;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\config;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\openssl\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\uv\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\zlib;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\v8\include;C:\Users\Muazzam\abi-stable-node-addon-examples\1_hello_world\node-addon-api\FocusedWindowTrackerPlugin\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=hello;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;HOST_BINARY="node.exe";DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\include\node;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\src;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\config;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\openssl\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\uv\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\zlib;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\v8\include;C:\Users\Muazzam\abi-stable-node-addon-examples\1_hello_world\node-addon-api\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\include\node;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\src;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\config;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\openssl\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\uv\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\zlib;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\v8\include;C:\Users\Muazzam\abi-stable-node-addon-examples\1_hello_world\node-addon-api\FocusedWindowTrackerPlugin\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
@@ -116,7 +116,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\include\node;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\src;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\config;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\openssl\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\uv\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\zlib;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\v8\include;C:\Users\Muazzam\abi-stable-node-addon-examples\1_hello_world\node-addon-api\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\include\node;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\src;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\config;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\openssl\openssl\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\uv\include;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\zlib;C:\Users\Muazzam\AppData\Local\node-gyp\Cache\12.18.3\deps\v8\include;C:\Users\Muazzam\abi-stable-node-addon-examples\1_hello_world\node-addon-api\FocusedWindowTrackerPlugin\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=hello;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;HOST_BINARY="node.exe";%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
@@ -124,24 +124,15 @@
     <None Include="..\binding.gyp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\additional\imageUtilities.cpp" />
+    <ClCompile Include="..\additional\stdafx.cpp" />
     <ClCompile Include="..\hello.cc" />
     <ClCompile Include="C:\Program Files\nodejs\node_modules\npm\node_modules\node-gyp\src\win_delay_load_hook.cc" />
-    <ClCompile Include="imageUtilities.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="imageUtilities.h" />
-    <ClInclude Include="stdafx.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="..\additional\imageUtilities.h" />
+    <ClInclude Include="..\additional\stdafx.h" />
+    <ClInclude Include="..\additional\targetver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />

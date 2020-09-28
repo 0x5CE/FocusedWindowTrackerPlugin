@@ -1,6 +1,6 @@
 #include <napi.h>
-#include "build\stdafx.h"
-#include "build\imageUtilities.h"
+#include "additional\stdafx.h"
+#include "additional\imageUtilities.h"
 
 // input: none
 // output:
