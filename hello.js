@@ -1,4 +1,4 @@
-var addon = require('bindings')('hello');
+var addon = require('bindings')('wintracker');
 var fs = require('fs'),
     PNG = require('pngjs').PNG;
 

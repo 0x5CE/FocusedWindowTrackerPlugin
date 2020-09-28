@@ -1,11 +1,12 @@
 {
   "targets": [
     {
-      "target_name": "hello",
+      "target_name": "wintracker",
       "cflags!": [ "-fno-exceptions" ],
       "cflags_cc!": [ "-fno-exceptions" ],
-      "sources": [ "hello.cc", "additional\imageUtilities.cpp" ],
+      "sources": [ "source\main.cc", "source\imageUtilities.cpp" ],
       "include_dirs": [
+	"source\\",
         "<!@(node -p \"require('node-addon-api').include\")"
       ],
       'defines': [ 'NAPI_DISABLE_CPP_EXCEPTIONS' ],
