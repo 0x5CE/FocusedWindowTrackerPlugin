@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wintracker", "wintracker.vcxproj", "{D51AD2B2-5A89-873B-F592-D2D95DDADA71}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wintracker", "wintracker.vcxproj", "{C9638907-4C4A-74B9-25E1-88BB9DB72613}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,10 +8,10 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D51AD2B2-5A89-873B-F592-D2D95DDADA71}.Debug|x64.ActiveCfg = Debug|x64
-		{D51AD2B2-5A89-873B-F592-D2D95DDADA71}.Debug|x64.Build.0 = Debug|x64
-		{D51AD2B2-5A89-873B-F592-D2D95DDADA71}.Release|x64.ActiveCfg = Release|x64
-		{D51AD2B2-5A89-873B-F592-D2D95DDADA71}.Release|x64.Build.0 = Release|x64
+		{C9638907-4C4A-74B9-25E1-88BB9DB72613}.Debug|x64.ActiveCfg = Debug|x64
+		{C9638907-4C4A-74B9-25E1-88BB9DB72613}.Debug|x64.Build.0 = Debug|x64
+		{C9638907-4C4A-74B9-25E1-88BB9DB72613}.Release|x64.ActiveCfg = Release|x64
+		{C9638907-4C4A-74B9-25E1-88BB9DB72613}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

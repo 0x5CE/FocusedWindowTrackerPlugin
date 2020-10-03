@@ -17,6 +17,9 @@
 #include <memory.h>
 #include <tchar.h>
 
+#include <d3d9.h>
+#pragma comment(lib, "d3d9.lib")
+
 #include <psapi.h>
 #include <shellapi.h>
 #include <vector>
@@ -25,3 +28,13 @@
 #include <ShellScalingApi.h>
 #pragma comment(lib, "Shcore.lib")
 #pragma once
+
+template <class T> void SafeRelease(T **ppT)
+{
+
+	if (*ppT)
+	{
+		(*ppT)->Release();
+		*ppT = NULL;
+	}
+}

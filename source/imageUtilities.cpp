@@ -120,4 +120,45 @@ namespace imageUtilities
 		return myinfo;
 	}
 
+	HRESULT InitializeDirect3D9(IDirect3DDevice9** ppDevice, IDirect3DSurface9** ppSurface, UINT32& uiWidth, UINT32& uiHeight)
+	{
+		IDirect3D9* d3d = NULL;
+
+		d3d = Direct3DCreate9(D3D_SDK_VERSION);
+
+		if (d3d == NULL)
+			return E_POINTER;
+
+		D3DDISPLAYMODE mode;
+		HRESULT hr = d3d->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &mode);
+
+		if (FAILED(hr))
+		{
+			SafeRelease(&d3d);
+			return hr;
+		}
+
+		D3DPRESENT_PARAMETERS parameters = { 0 };
+
+		parameters.Windowed = TRUE;
+		parameters.BackBufferCount = 1;
+		uiHeight = parameters.BackBufferHeight = mode.Height;
+		uiWidth = parameters.BackBufferWidth = mode.Width;
+		parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
+		parameters.hDeviceWindow = NULL;
+
+		hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, NULL, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &parameters, ppDevice);
+
+		if (FAILED(hr))
+		{
+			SafeRelease(&d3d);
+			return hr;
+		}
+
+		hr = (*ppDevice)->CreateOffscreenPlainSurface(mode.Width, mode.Height, D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, ppSurface, nullptr);
+
+		SafeRelease(&d3d);
+
+		return hr;
+	}
 }

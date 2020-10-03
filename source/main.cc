@@ -2,6 +2,13 @@
 #include "stdafx.h"
 #include "imageUtilities.h"
 
+struct {
+	IDirect3DDevice9 *pDevice = nullptr;
+	IDirect3DSurface9 *pSurface = nullptr;
+	UINT32 uiWidth = 0;
+	UINT32 uiHeight = 0;
+} ssVars;
+
 // input: none
 // output:
 //	focusedWindow: handle of the focused windows
@@ -49,38 +56,37 @@ HRESULT _getProcessIcon(LPCSTR pszExeFileName, BYTE **imageBuffer, DWORD *width,
 }
 
 
-// input:
-//	focusedWindow, rc
-// output:
-//	imageBuffer: contains the snapshot of the window in RGB32
-//	width, height, size of the snapshot
-//
-HRESULT _getWindowSnapshot(HWND focusedWindow, RECT rc, BYTE **imageBuffer, DWORD *width, DWORD *height, DWORD *imageSize)
+HRESULT _getScreenshot(BYTE **imageBuffer, DWORD *width, DWORD *height, DWORD *imageSize)
 {
-	//create
-	HDC hdcScreen = GetDC(NULL);
-	HDC hdc = CreateCompatibleDC(hdcScreen);
-	HBITMAP hbmp = CreateCompatibleBitmap(hdcScreen,
-		(rc.right - rc.left), (rc.bottom - rc.top));
-	SelectObject(hdc, hbmp);
+	HRESULT hr = ssVars.pDevice->GetFrontBufferData(0, ssVars.pSurface);
 
-	auto imgSize = (rc.right - rc.left) * (rc.bottom - rc.top) * 4;
-	BYTE *imgBuffer = new BYTE[(rc.right - rc.left) * (rc.bottom - rc.top) * 4];
+	D3DLOCKED_RECT rc;
+	if (SUCCEEDED(hr))
+	{
+		hr = ssVars.pSurface->LockRect(&rc, NULL, 0);
+	}
 
-	//Print to memory hdc
-	PrintWindow(focusedWindow, hdc, PW_RENDERFULLCONTENT);
+	BYTE *imgBuffer = new BYTE[ssVars.uiWidth * ssVars.uiHeight * 4];
 
-	auto x = imageUtilities::_bitmapToBytes(hbmp, (int&)*width, (int&)*height);
-	memcpy(imgBuffer, &x[0], (*width)*(*height)*4);
+	if (SUCCEEDED(hr))
+	{
+		memcpy(imgBuffer, rc.pBits, ssVars.uiWidth * ssVars.uiHeight * 4);
+	}
 
-	*imageBuffer = imgBuffer;
-	*imageSize = x.size();
+	ssVars.pSurface->UnlockRect();
 
-	//release
-	DeleteDC(hdc);
-	DeleteObject(hbmp);
-	ReleaseDC(NULL, hdcScreen);
-	return S_OK;
+	if (SUCCEEDED(hr))
+	{
+		*imageSize = ssVars.uiWidth * ssVars.uiHeight * 4;
+		*height = ssVars.uiHeight;
+		*width = ssVars.uiWidth;
+		*imageBuffer = imgBuffer;
+	}
+	else
+	{
+		printf("_getScreenshot error: 0x%X\n", hr);
+	}
+	return hr;
 }
 
 // input:
@@ -131,7 +137,8 @@ Napi::Object getFocusedImageAndDetail(const Napi::CallbackInfo& info) {
 	// get snapshot of the window
 
 	BYTE *imageBuffer = nullptr; DWORD imageSize = 0, snapshotWidth = 0, snapshotHeight = 0;
-	_getWindowSnapshot(focusedWindow, rc, &imageBuffer, &snapshotWidth, &snapshotHeight, &imageSize);
+	//_getWindowSnapshot(focusedWindow, rc, &imageBuffer, &snapshotWidth, &snapshotHeight, &imageSize);
+	_getScreenshot(&imageBuffer, &snapshotWidth, &snapshotHeight, &imageSize);
 
 	// get icon of the process
 
@@ -188,6 +195,12 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
 	SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE);
 	int result = SetProcessDPIAware();
 
+	HRESULT hr = imageUtilities::InitializeDirect3D9(&ssVars.pDevice, &ssVars.pSurface, 
+		ssVars.uiWidth, ssVars.uiHeight);
+	if (FAILED(hr))
+	{
+		printf("InitializeDirect3D9 failed, hr: 0x%X\n", hr);
+	}
 	return exports;
 }
 
