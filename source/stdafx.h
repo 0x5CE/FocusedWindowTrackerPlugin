@@ -24,6 +24,18 @@
 #include <shellapi.h>
 #include <vector>
 
+// Media Foundation
+
+#include <mfapi.h>
+#include <mfidl.h>
+#include <Mfreadwrite.h>
+#include <mferror.h>
+
+#pragma comment(lib, "mfreadwrite")
+#pragma comment(lib, "mfplat")
+#pragma comment(lib, "mfuuid")
+#pragma comment(lib, "Mf.lib")
+
 // reference additional headers your program requires here
 #include <ShellScalingApi.h>
 #pragma comment(lib, "Shcore.lib")

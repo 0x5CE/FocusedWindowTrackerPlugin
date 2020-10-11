@@ -15,10 +15,8 @@ function invertRandB(imgBuffer, width, height)
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-//sleep(0).then(
-
-var main = () => {
-
+sleep(3000).then(() =>
+{
     var focuseedImageAndDetail = addon.getFocusedImageAndDetail();
 
     console.log("Window path name: " + focuseedImageAndDetail.filename);
@@ -57,6 +55,13 @@ var main = () => {
     console.log("Saving window icon...");
     snapshotPng.data = focuseedImageAndDetail.icon
     snapshotPng.pack().pipe(fs.createWriteStream("icon.png"));
-};
 
-main()
+    console.log("User idle time: " + focuseedImageAndDetail.userIdleTime);
+
+    if (focuseedImageAndDetail.browserURL)
+        console.log('Browser URL: ' + focuseedImageAndDetail.browserURL)
+    if (focuseedImageAndDetail.browserTitle)
+        console.log('Browser Title: ' + focuseedImageAndDetail.browserTitle)
+
+});
+

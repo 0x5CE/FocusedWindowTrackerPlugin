@@ -1,6 +1,11 @@
 #include <napi.h>
 #include "stdafx.h"
 #include "imageUtilities.h"
+#include "UtilsCaptureDevice.h"
+#include "uiautomationclient.h"
+#include "atlcomcli.h"
+#include <codecvt>
+#include <winuser.h>
 
 struct {
 	IDirect3DDevice9 *pDevice = nullptr;
@@ -8,6 +13,17 @@ struct {
 	UINT32 uiWidth = 0;
 	UINT32 uiHeight = 0;
 } ssVars;
+
+std::string _getFileName(TCHAR *filepath)
+{
+	char fname[_MAX_FNAME] = { 0 };
+	errno_t err;
+
+	std::string path = std::string(filepath);
+
+	err = _splitpath_s(path.c_str(), NULL, 0, NULL, 0, &fname[0], _MAX_FNAME, NULL, 0);
+	return std::string(fname);
+}
 
 // input: none
 // output:
@@ -20,6 +36,52 @@ HRESULT _getFocusedWindowInfo(HWND *focusedWindow, RECT *rc, DWORD *focusedPID)
 	*focusedWindow = GetForegroundWindow();
 	GetWindowRect(*focusedWindow, rc);
 	GetWindowThreadProcessId(*focusedWindow, focusedPID);
+	return S_OK;
+}
+
+// input:
+//	hwnd: focused window
+//	processName: application name
+//	type: output desired.  1 for title, 2 for URL
+std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type)
+{
+	while (true)
+	{
+		//if (!hwnd)
+		//	break;
+		//if (!IsWindowVisible(hwnd))
+		//	continue;
+
+		CComQIPtr<IUIAutomation> uia;
+		if (FAILED(uia.CoCreateInstance(CLSID_CUIAutomation)) || !uia)
+			break;
+
+		CComPtr<IUIAutomationElement> root;
+		if (FAILED(uia->ElementFromHandle(hwnd, &root)) || !root)
+			break;
+
+		CComPtr<IUIAutomationCondition> condition;
+
+		if (type == 1)
+			uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
+				CComVariant(0xC363), &condition);
+		else if (type == 2)
+			uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
+				CComVariant(0xC354), &condition);
+
+		CComPtr<IUIAutomationElement> edit;
+		if (FAILED(root->FindFirst(TreeScope_Descendants, condition, &edit))
+			|| !edit)
+			continue;
+
+		CComVariant url;
+		if (type == 1)
+			edit->GetCurrentPropertyValue(UIA_NamePropertyId, &url);
+		else if (type == 2)
+			edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &url);
+		return std::wstring(url.bstrVal);
+		break;
+	}
 	return S_OK;
 }
 
@@ -90,6 +152,21 @@ HRESULT _getScreenshot(BYTE **imageBuffer, DWORD *width, DWORD *height, DWORD *i
 }
 
 // input:
+//	filename
+// output:
+//	true if the filename is a browser executable
+//
+bool _isItBrowser(TCHAR *filepath)
+{
+	std::string filename = _getFileName(filepath);
+
+	if (filename == "msedge" || filename == "chrome" || filename == "brave" || filename == "opera" || filename == "firefox")
+		return true;
+	else
+		return false;
+}
+
+// input:
 //	PID: process ID
 // output:
 //	filename: file path of the process
@@ -153,11 +230,30 @@ Napi::Object getFocusedImageAndDetail(const Napi::CallbackInfo& info) {
 	obj.Set(Napi::String::New(env, "iconWidth"), iconWidth);
 	obj.Set(Napi::String::New(env, "iconHeight"), iconHeight);
 
+	// get last user activity (idle time) on the application
+
+	LASTINPUTINFO lii;
+	lii.cbSize = sizeof(LASTINPUTINFO);
+	GetLastInputInfo(&lii);
+	auto idleTime = (GetTickCount() - lii.dwTime)/1000.0;
+	obj.Set(Napi::String::New(env, "userIdleTime"), idleTime);
+
+	
+	if (_isItBrowser(filename))
+	{
+		using convert_type = std::codecvt_utf8<wchar_t>;
+		std::wstring_convert<convert_type, wchar_t> converter;
+		std::string stringURL = converter.to_bytes(_getBrowserURL(focusedWindow, "", 2));
+		obj.Set(Napi::String::New(env, "browserURL"), stringURL.c_str());
+
+		std::string stringTitle = converter.to_bytes(_getBrowserURL(focusedWindow, "", 1));
+		obj.Set(Napi::String::New(env, "browserTitle"), stringTitle.c_str());
+	}
 	return obj;
 }
 
 // input: none
-// output:	object with keys
+// output: object with keys
 //	
 Napi::Object getFocusedDetail(const Napi::CallbackInfo& info) {
 	Napi::Env env = info.Env();
@@ -171,7 +267,11 @@ Napi::Object getFocusedDetail(const Napi::CallbackInfo& info) {
 //
 Napi::Boolean isMicrophoneActive(const Napi::CallbackInfo& info) {
 	Napi::Env env = info.Env();
-	return Napi::Boolean::New(env, false);
+
+	// audio device
+	bool active = UtilsCaptureDevice::isCaptureDeviceActive(true);
+
+	return Napi::Boolean::New(env, active);
 }
 
 // input: none
@@ -179,7 +279,11 @@ Napi::Boolean isMicrophoneActive(const Napi::CallbackInfo& info) {
 //
 Napi::Boolean isWebcamActive(const Napi::CallbackInfo& info) {
 	Napi::Env env = info.Env();
-	return Napi::Boolean::New(env, false);
+
+	// not audio device (i.e., webcam)
+	bool active = UtilsCaptureDevice::isCaptureDeviceActive(false);
+
+	return Napi::Boolean::New(env, active);
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
@@ -192,10 +296,16 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
 	exports.Set(Napi::String::New(env, "isWebcamActive"),
 		Napi::Function::New(env, isWebcamActive));
 
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+	if (SUCCEEDED(hr))
+	{
+		hr = MFStartup(MF_VERSION);
+	}
+
 	SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE);
 	int result = SetProcessDPIAware();
 
-	HRESULT hr = imageUtilities::InitializeDirect3D9(&ssVars.pDevice, &ssVars.pSurface, 
+	hr = imageUtilities::InitializeDirect3D9(&ssVars.pDevice, &ssVars.pSurface, 
 		ssVars.uiWidth, ssVars.uiHeight);
 	if (FAILED(hr))
 	{

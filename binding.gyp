@@ -4,7 +4,7 @@
       "target_name": "wintracker",
       "cflags!": [ "-fno-exceptions" ],
       "cflags_cc!": [ "-fno-exceptions" ],
-      "sources": [ "source\main.cc", "source\imageUtilities.cpp" ],
+      "sources": [ "source\main.cc", "source\imageUtilities.cpp", "source\UtilsCaptureDevice.cpp" ],
       "include_dirs": [
 	"source\\",
         "<!@(node -p \"require('node-addon-api').include\")"
