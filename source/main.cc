@@ -69,16 +69,60 @@ std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type)
 			uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
 				CComVariant(0xC354), &condition);
 
+		CComPtr<IUIAutomationElementArray> editArray;
 		CComPtr<IUIAutomationElement> edit;
-		if (FAILED(root->FindFirst(TreeScope_Descendants, condition, &edit))
-			|| !edit)
-			continue;
-
+		int editArraySize = 0;
+		
+		root->FindAll(TreeScope_Descendants, condition, &editArray);
+		
 		CComVariant url;
+		editArray->get_Length(&editArraySize);
+
 		if (type == 1)
+		{
+
+			int i = 0;
+			for (; i < editArraySize; i++)
+			{
+				CComPtr<IUIAutomationElement> edit;
+
+				if (FAILED(editArray->GetElement(i, &edit))
+					|| !edit)
+					continue;
+
+				edit->GetCurrentPropertyValue(UIA_SelectionItemIsSelectedPropertyId, &url);
+				if (url.boolVal)	// get selected tab
+					break;
+			}
+
+			// last of the array
+			if (FAILED(editArray->GetElement(i, &edit))
+				|| !edit)
+				continue;
+
 			edit->GetCurrentPropertyValue(UIA_NamePropertyId, &url);
+		}
 		else if (type == 2)
+		{
+			int i = 0;
+			for (; i < editArraySize; i++)
+			{
+				CComPtr<IUIAutomationElement> edit;
+
+				if (FAILED(editArray->GetElement(i, &edit))
+					|| !edit)
+					continue;
+				
+				edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &url);
+				if (url.bstrVal[0])	// sometimes it's "" in case of Chrome
+					break;
+			}
+
+			if (FAILED(editArray->GetElement(i, &edit))
+				|| !edit)
+				continue;
 			edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &url);
+		}
 		return std::wstring(url.bstrVal);
 		break;
 	}
@@ -160,7 +204,8 @@ bool _isItBrowser(TCHAR *filepath)
 {
 	std::string filename = _getFileName(filepath);
 
-	if (filename == "msedge" || filename == "chrome" || filename == "brave" || filename == "opera" || filename == "firefox")
+	if (filename == "msedge" || filename == "chrome" || filename == "brave" || 
+		filename == "opera" || filename == "firefox" || filename == "iexplore")
 		return true;
 	else
 		return false;
