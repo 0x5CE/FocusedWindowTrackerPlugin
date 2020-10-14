@@ -95,6 +95,9 @@ std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type)
 					break;
 			}
 
+			if (i >= editArraySize)
+				i = editArraySize - 1;
+
 			// last of the array
 			if (FAILED(editArray->GetElement(i, &edit))
 				|| !edit)
@@ -112,11 +115,14 @@ std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type)
 				if (FAILED(editArray->GetElement(i, &edit))
 					|| !edit)
 					continue;
-				
+
 				edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &url);
 				if (url.bstrVal[0])	// sometimes it's "" in case of Chrome
 					break;
 			}
+
+			if (i >= editArraySize)
+				i = editArraySize - 1;
 
 			if (FAILED(editArray->GetElement(i, &edit))
 				|| !edit)
