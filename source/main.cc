@@ -88,7 +88,10 @@ std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type)
 
 				if (FAILED(editArray->GetElement(i, &edit))
 					|| !edit)
-					continue;
+				{
+					printf("GetElement Error 1\n");
+					break;
+				}
 
 				edit->GetCurrentPropertyValue(UIA_SelectionItemIsSelectedPropertyId, &url);
 				if (url.boolVal)	// get selected tab
@@ -101,7 +104,10 @@ std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type)
 			// last of the array
 			if (FAILED(editArray->GetElement(i, &edit))
 				|| !edit)
-				continue;
+			{
+				printf("GetElement Error 2\n");
+				break;
+			}
 
 			edit->GetCurrentPropertyValue(UIA_NamePropertyId, &url);
 		}
@@ -114,7 +120,10 @@ std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type)
 
 				if (FAILED(editArray->GetElement(i, &edit))
 					|| !edit)
-					continue;
+				{
+					printf("GetElement Error 3\n");
+					break;
+				}
 
 				edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &url);
 				if (url.bstrVal[0])	// sometimes it's "" in case of Chrome
@@ -126,7 +135,10 @@ std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type)
 
 			if (FAILED(editArray->GetElement(i, &edit))
 				|| !edit)
-				continue;
+			{
+				printf("GetElement Error 4\n");
+				break;
+			}
 			edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &url);
 		}
 		return std::wstring(url.bstrVal);
