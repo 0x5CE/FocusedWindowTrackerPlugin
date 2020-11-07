@@ -47,102 +47,44 @@ std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type)
 {
 	while (true)
 	{
-		//if (!hwnd)
-		//	break;
-		//if (!IsWindowVisible(hwnd))
-		//	continue;
-
-		CComQIPtr<IUIAutomation> uia;
-		if (FAILED(uia.CoCreateInstance(CLSID_CUIAutomation)) || !uia)
+		if (!hwnd)
 			break;
-
-		CComPtr<IUIAutomationElement> root;
-		if (FAILED(uia->ElementFromHandle(hwnd, &root)) || !root)
-			break;
-
-		CComPtr<IUIAutomationCondition> condition;
-
-		if (type == 1)
-			uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
-				CComVariant(0xC363), &condition);
-		else if (type == 2)
-			uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
-				CComVariant(0xC354), &condition);
-
-		CComPtr<IUIAutomationElementArray> editArray;
-		CComPtr<IUIAutomationElement> edit;
-		int editArraySize = 0;
-		
-		root->FindAll(TreeScope_Descendants, condition, &editArray);
-		
-		CComVariant url;
-		editArray->get_Length(&editArraySize);
+		if (!IsWindowVisible(hwnd))
+			continue;
 
 		if (type == 1)
 		{
-
-			int i = 0;
-			for (; i < editArraySize; i++)
-			{
-				CComPtr<IUIAutomationElement> edit;
-
-				if (FAILED(editArray->GetElement(i, &edit))
-					|| !edit)
-				{
-					printf("GetElement Error 1\n");
-					break;
-				}
-
-				edit->GetCurrentPropertyValue(UIA_SelectionItemIsSelectedPropertyId, &url);
-				if (url.boolVal)	// get selected tab
-					break;
-			}
-
-			if (i >= editArraySize)
-				i = editArraySize - 1;
-
-			// last of the array
-			if (FAILED(editArray->GetElement(i, &edit))
-				|| !edit)
-			{
-				printf("GetElement Error 2\n");
-				break;
-			}
-
-			edit->GetCurrentPropertyValue(UIA_NamePropertyId, &url);
+			// get the window title, since browsers will have active tab title as the window's title
+			int windowTextLength = GetWindowTextLengthW(hwnd);
+			LPWSTR title = (LPWSTR)GlobalAlloc(GPTR, windowTextLength + 1);
+			GetWindowTextW(hwnd, title, windowTextLength + 1);
+			return std::wstring(title);
 		}
-		else if (type == 2)
+
+		if (type == 2)
 		{
-			int i = 0;
-			for (; i < editArraySize; i++)
-			{
-				CComPtr<IUIAutomationElement> edit;
-
-				if (FAILED(editArray->GetElement(i, &edit))
-					|| !edit)
-				{
-					printf("GetElement Error 3\n");
-					break;
-				}
-
-				edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &url);
-				if (url.bstrVal[0])	// sometimes it's "" in case of Chrome
-					break;
-			}
-
-			if (i >= editArraySize)
-				i = editArraySize - 1;
-
-			if (FAILED(editArray->GetElement(i, &edit))
-				|| !edit)
-			{
-				printf("GetElement Error 4\n");
+			CComQIPtr<IUIAutomation> uia;
+			if (FAILED(uia.CoCreateInstance(CLSID_CUIAutomation)) || !uia)
 				break;
-			}
+
+			CComPtr<IUIAutomationElement> root;
+			if (FAILED(uia->ElementFromHandle(hwnd, &root)) || !root)
+				break;
+
+			CComPtr<IUIAutomationCondition> condition, condition1;
+
+			uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
+				CComVariant(0xC354), &condition1);
+
+			CComPtr<IUIAutomationElement> edit;
+			if (FAILED(root->FindFirst(TreeScope_Descendants, condition1, &edit)) || !edit)
+				continue; //maybe we don't have the right tab, continue...
+
+			CComVariant url;
 			edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &url);
+			return std::wstring(url.bstrVal);
+			break;
 		}
-		return std::wstring(url.bstrVal);
-		break;
 	}
 	return S_OK;
 }
