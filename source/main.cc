@@ -39,12 +39,222 @@ HRESULT _getFocusedWindowInfo(HWND *focusedWindow, RECT *rc, DWORD *focusedPID)
 	return S_OK;
 }
 
+
+LPWSTR firefox_geturl(HWND hwnd)
+{
+    CComQIPtr<IUIAutomation> uia;
+    if (FAILED(uia.CoCreateInstance(CLSID_CUIAutomation)) || !uia)
+        return false;
+
+    CComPtr<IUIAutomationElement> element;
+    if (FAILED(uia->ElementFromHandle(hwnd, &element)) || !element)
+        return false;
+
+    //initialize conditions
+    CComPtr<IUIAutomationCondition> toolbar_cond;
+    uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
+                                 CComVariant(UIA_ToolBarControlTypeId), &toolbar_cond);
+
+    CComPtr<IUIAutomationCondition> editbox_cond;
+    uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
+                                 CComVariant(UIA_EditControlTypeId), &editbox_cond);
+
+    //find the top toolbars
+    CComPtr<IUIAutomationElementArray> toolbars;
+    if (FAILED(element->FindAll(TreeScope_Descendants, toolbar_cond, &toolbars)) || !toolbars)
+        return false;
+
+    int toolbars_count = 0;
+    toolbars->get_Length(&toolbars_count);
+
+    for (int i = 0; i < toolbars_count; i++)
+    {
+        CComPtr<IUIAutomationElement> toolbar;
+        if (FAILED(toolbars->GetElement(i, &toolbar)) || !toolbar)
+            continue;
+
+        //find the comboxes for each toolbar
+        CComPtr<IUIAutomationElementArray> edits;
+        if (FAILED(toolbar->FindAll(TreeScope_Descendants, editbox_cond, &edits)) || !edits)
+            return false;
+
+        int edit_count = 0;
+        edits->get_Length(&edit_count);
+
+        for (int j = 0; j < edit_count; j++)
+        {
+            CComPtr<IUIAutomationElement> edit;
+            if (FAILED(edits->GetElement(j, &edit)) || !edit)
+                continue;
+
+            CComVariant bstr;
+            if (FAILED(edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &bstr)))
+                continue;
+
+            if (!bstr.bstrVal[0]) // sometimes it's "" in case of Chrome
+                continue;
+
+            return bstr.bstrVal;
+        }
+    }
+    return NULL;
+}
+
+
+LPWSTR _opera_geturl(HWND hwnd)
+{
+	CComQIPtr<IUIAutomation> uia;
+	if (FAILED(uia.CoCreateInstance(CLSID_CUIAutomation)) || !uia)
+		return false;
+
+	CComPtr<IUIAutomationElement> element;
+	if (FAILED(uia->ElementFromHandle(hwnd, &element)) || !element)
+		return false;
+
+	//initialize conditions
+	CComPtr<IUIAutomationCondition> toolbar_cond;
+	uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
+		CComVariant(UIA_ToolBarControlTypeId), &toolbar_cond);
+
+	CComPtr<IUIAutomationCondition> editbox_cond;
+	uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
+		CComVariant(UIA_EditControlTypeId), &editbox_cond);
+
+	//find the top toolbars
+	CComPtr<IUIAutomationElementArray> toolbars;
+	if (FAILED(element->FindAll(TreeScope_Descendants, toolbar_cond, &toolbars)) || !toolbars)
+		return false;
+
+	int toolbars_count = 0;
+	toolbars->get_Length(&toolbars_count);
+
+	for (int i = 0; i < toolbars_count; i++)
+	{
+		CComPtr<IUIAutomationElement> toolbar;
+		if (FAILED(toolbars->GetElement(i, &toolbar)) || !toolbar)
+			continue;
+
+		//find the comboxes for each toolbar
+		CComPtr<IUIAutomationElementArray> edits;
+		if (FAILED(toolbar->FindAll(TreeScope_Descendants, editbox_cond, &edits)) || !edits)
+			return false;
+
+		int edit_count = 0;
+		edits->get_Length(&edit_count);
+
+		for (int j = 0; j < edit_count; j++)
+		{
+			CComPtr<IUIAutomationElement> edit;
+			if (FAILED(edits->GetElement(j, &edit)) || !edit)
+				continue;
+
+			CComVariant bstr;
+			if (FAILED(edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &bstr)))
+				continue;
+
+			if (!bstr.bstrVal[0]) // sometimes it's "" in case of Chrome
+				continue;
+
+			return bstr.bstrVal;
+		}
+	}
+	return NULL;
+}
+
+
+LPWSTR _firefox_geturl(HWND hwnd)
+{
+	CComQIPtr<IUIAutomation> uia;
+	if (FAILED(uia.CoCreateInstance(CLSID_CUIAutomation)) || !uia)
+		return false;
+
+	CComPtr<IUIAutomationElement> element;
+	if (FAILED(uia->ElementFromHandle(hwnd, &element)) || !element)
+		return false;
+
+	//initialize conditions
+	CComPtr<IUIAutomationCondition> toolbar_cond;
+	uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
+		CComVariant(UIA_ToolBarControlTypeId), &toolbar_cond);
+
+	CComPtr<IUIAutomationCondition> combobox_cond;
+	uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
+		CComVariant(UIA_ComboBoxControlTypeId), &combobox_cond);
+
+	CComPtr<IUIAutomationCondition> editbox_cond;
+	uia->CreatePropertyCondition(UIA_ControlTypePropertyId,
+		CComVariant(UIA_EditControlTypeId), &editbox_cond);
+
+	//find the top toolbars
+	CComPtr<IUIAutomationElementArray> toolbars;
+	if (FAILED(element->FindAll(TreeScope_Children, toolbar_cond, &toolbars)) || !toolbars)
+		return false;
+
+	int toolbars_count = 0;
+	toolbars->get_Length(&toolbars_count);
+
+	for (int i = 0; i < toolbars_count; i++)
+	{
+		CComPtr<IUIAutomationElement> toolbar;
+		if (FAILED(toolbars->GetElement(i, &toolbar)) || !toolbar)
+			continue;
+
+		//find the comboxes for each toolbar
+		CComPtr<IUIAutomationElementArray> comboboxes;
+		if (FAILED(toolbar->FindAll(TreeScope_Children, combobox_cond, &comboboxes)) || !comboboxes)
+			return false;
+
+		int combobox_count = 0;
+		comboboxes->get_Length(&combobox_count);
+
+		for (int j = 0; j < combobox_count; j++)
+		{
+			CComPtr<IUIAutomationElement> combobox;
+			if (FAILED(comboboxes->GetElement(j, &combobox)) || !combobox)
+				continue;
+
+			CComVariant test;
+			if (FAILED(combobox->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &test)))
+				continue;
+
+			//we are interested in a combobox which has no lable
+			if (wcslen(test.bstrVal))
+				continue;
+
+			//find the first editbox
+			CComPtr<IUIAutomationElement> edit;
+			if (FAILED(combobox->FindFirst(TreeScope_Descendants, editbox_cond, &edit)) || !edit)
+				continue;
+
+			CComVariant bstr;
+			if (FAILED(edit->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &bstr)))
+				continue;
+
+			if (!bstr.bstrVal[0]) // sometimes it's "" in case of Chrome
+				continue;
+
+			return bstr.bstrVal;
+		}
+	}
+	return NULL;
+}
+
+
 // input:
 //	hwnd: focused window
 //	processName: application name
 //	type: output desired.  1 for title, 2 for URL
-std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type)
+std::wstring _getBrowserURL(HWND hwnd, std::string processName, int type, TCHAR *filepath)
 {
+	if (type == 2)
+	{
+		std::string filename = _getFileName(filepath);
+		if (filename == "firefox")
+			return _firefox_geturl(hwnd);
+		else if (filename == "opera")
+			return _opera_geturl(hwnd);
+	}
+
 	while (true)
 	{
 		if (!hwnd)
@@ -248,10 +458,10 @@ Napi::Object getFocusedImageAndDetail(const Napi::CallbackInfo& info) {
 	{
 		using convert_type = std::codecvt_utf8<wchar_t>;
 		std::wstring_convert<convert_type, wchar_t> converter;
-		std::string stringURL = converter.to_bytes(_getBrowserURL(focusedWindow, "", 2));
+		std::string stringURL = converter.to_bytes(_getBrowserURL(focusedWindow, "", 2, filename));
 		obj.Set(Napi::String::New(env, "browserURL"), stringURL.c_str());
 
-		std::string stringTitle = converter.to_bytes(_getBrowserURL(focusedWindow, "", 1));
+		std::string stringTitle = converter.to_bytes(_getBrowserURL(focusedWindow, "", 1, filename));
 		obj.Set(Napi::String::New(env, "browserTitle"), stringTitle.c_str());
 	}
 	return obj;
